@@ -12,6 +12,8 @@ export class EngineService {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
 
+  private planetEarth: THREE.Mesh;
+
   public objects = [];
 
   public planetTextures = [
@@ -30,9 +32,6 @@ export class EngineService {
   ];
 
   private controls: OrbitControls;
-
-  // private cube: THREE.Mesh;
-  // private cube2: THREE.Mesh;
 
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
@@ -67,7 +66,7 @@ export class EngineService {
       let planetGeometry = new THREE.SphereGeometry(40,40,40);
       let randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
       var planetTexture = new THREE.TextureLoader().load(this.planetTextures[randIndex]);
-      let planetMaterial = new THREE.MeshPhongMaterial({
+      var planetMaterial = new THREE.MeshPhongMaterial({
         map: planetTexture
       })
       var planet = new THREE.Mesh(planetGeometry, planetMaterial);
@@ -88,22 +87,16 @@ export class EngineService {
       map: map
     })
 
-    let planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
-    planetEarth.receiveShadow = true;
-    planetEarth.castShadow = true;
+    this.planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
+    this.planetEarth.receiveShadow = true;
+    this.planetEarth.castShadow = true;
 
-    planetEarth.rotation.x += 0.01;
-    planetEarth.rotation.y += 0.01;
-    planetEarth.position.x = 1;
-    planetEarth.position.y = 1;
+    this.planetEarth.rotation.x += 100;
+    this.planetEarth.rotation.y += 100;
 
-    planetEarth.rotation.x += 0.01;
-    planetEarth.rotation.y += 0.01;
-    planetEarth.position.x = 3;
-    planetEarth.position.y = 1;
-    planetEarth.castShadow = true;
+    this.planetEarth.castShadow = true;
 
-    this.scene.add(planetEarth);
+    this.scene.add(this.planetEarth);
 
     var spotLight = new THREE.SpotLight(0xAAAAAA);
     spotLight.position.set(100, 100, 100);
@@ -131,6 +124,7 @@ export class EngineService {
       this.render();
     });
 
+    this.planetEarth.rotation.y += 0.001;
     this.renderer.render(this.scene, this.camera);
   }
 }

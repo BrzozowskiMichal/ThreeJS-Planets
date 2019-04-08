@@ -13,8 +13,8 @@ export class EngineComponent implements OnInit {
 
   ngOnInit() {
     this.engServ.createScene(this.canEleId);
-    this.engServ.animate();
     this.engServ.addControls();
+    this.engServ.animate();
   }
 
 }
