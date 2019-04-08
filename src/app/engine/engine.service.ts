@@ -31,9 +31,6 @@ export class EngineService {
 
   private controls: OrbitControls;
 
-  // private cube: THREE.Mesh;
-  // private cube2: THREE.Mesh;
-
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = <HTMLCanvasElement>document.getElementById(elementId);
