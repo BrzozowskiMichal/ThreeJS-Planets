@@ -121,7 +121,6 @@ export class EngineService {
   addControls() {
     this.controls = new OrbitControls(this.camera);
     this.controls.rotateSpeed = 0.5;
-    this.controls.maxPolarAngle = Math.PI / 3;
     this.controls.addEventListener("change", this.render);
 
     window.addEventListener( 'mousewheel', () => {
