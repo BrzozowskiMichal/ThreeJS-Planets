@@ -1,10 +1,10 @@
-import * as THREE from 'three';
-import { Injectable } from '@angular/core';
-import { OrbitControls } from 'three-orbitcontrols-ts';
-import { load } from '@angular/core/src/render3';
+import * as THREE from "three";
+import { Injectable } from "@angular/core";
+import { OrbitControls } from "three-orbitcontrols-ts";
+import { load } from "@angular/core/src/render3";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class EngineService {
   private canvas: HTMLCanvasElement;
@@ -15,18 +15,18 @@ export class EngineService {
   public objects = [];
 
   public planetTextures = [
-    '/assets/textures/sun.jpg',
-    '/assets/textures/mars.jpg',
-    '/assets/textures/fake.jpg',
-    '/assets/textures/haumea.jpg',
-    '/assets/textures/ceres.jpg',
-    '/assets/textures/eris.jpg',
-    '/assets/textures/jupiter.jpg',
-    '/assets/textures/make.jpg',
-    '/assets/textures/moon.jpg',
-    '/assets/textures/neptun.jpg',
-    '/assets/textures/saturn.jpg',
-    '/assets/textures/uranus.jpg',
+    "/assets/textures/sun.jpg",
+    "/assets/textures/mars.jpg",
+    "/assets/textures/fake.jpg",
+    "/assets/textures/haumea.jpg",
+    "/assets/textures/ceres.jpg",
+    "/assets/textures/eris.jpg",
+    "/assets/textures/jupiter.jpg",
+    "/assets/textures/make.jpg",
+    "/assets/textures/moon.jpg",
+    "/assets/textures/neptun.jpg",
+    "/assets/textures/saturn.jpg",
+    "/assets/textures/uranus.jpg"
   ];
 
   private controls: OrbitControls;
@@ -40,7 +40,7 @@ export class EngineService {
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      alpha: true,    // transparent background
+      alpha: true, // transparent background
       antialias: true // smooth edges
     });
     this.renderer.shadowMapEnabled = true; //Shadow
@@ -49,27 +49,34 @@ export class EngineService {
 
     // create the scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.TextureLoader().load('/assets/images/galaxy.jpg');
+    this.scene.background = new THREE.TextureLoader().load(
+      "/assets/images/galaxy.jpg"
+    );
 
     this.camera = new THREE.PerspectiveCamera(
-      75, window.innerWidth / window.innerHeight, 0.1, 1000
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
     );
     this.camera.position.z = 500;
     this.camera.position.y = 3;
     this.scene.add(this.camera);
 
     // soft white light
-    var light = new THREE.SpotLight( 0xffffff, 2 );
-    light.position.set( 100, 500, 2000 );
+    var light = new THREE.SpotLight(0xffffff, 2);
+    light.position.set(100, 500, 2000);
     this.scene.add(light);
 
     for (var i = 0; i < 10; i++) {
-      let planetGeometry = new THREE.SphereGeometry(40,40,40);
+      let planetGeometry = new THREE.SphereGeometry(40, 40, 40);
       let randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
-      var planetTexture = new THREE.TextureLoader().load(this.planetTextures[randIndex]);
+      var planetTexture = new THREE.TextureLoader().load(
+        this.planetTextures[randIndex]
+      );
       let planetMaterial = new THREE.MeshPhongMaterial({
         map: planetTexture
-      })
+      });
       var planet = new THREE.Mesh(planetGeometry, planetMaterial);
       planet.position.x = Math.random() * 1000 - 500;
       planet.position.y = Math.random() * 600 - 300;
@@ -83,10 +90,10 @@ export class EngineService {
     }
 
     let earthGeometry = new THREE.SphereGeometry(150, 150, 150);
-    let map = new THREE.TextureLoader().load('/assets/textures/earth.jpg');
+    let map = new THREE.TextureLoader().load("/assets/textures/earth.jpg");
     let earthMaterial = new THREE.MeshPhongMaterial({
       map: map
-    })
+    });
 
     let planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
     planetEarth.receiveShadow = true;
@@ -105,7 +112,7 @@ export class EngineService {
 
     this.scene.add(planetEarth);
 
-    var spotLight = new THREE.SpotLight(0xAAAAAA);
+    var spotLight = new THREE.SpotLight(0xaaaaaa);
     spotLight.position.set(100, 100, 100);
     spotLight.castShadow = true;
     spotLight.shadowBias = 100;
@@ -118,13 +125,27 @@ export class EngineService {
     this.controls = new OrbitControls(this.camera);
     this.controls.rotateSpeed = 0.5;
     this.controls.maxPolarAngle = Math.PI / 3;
-    this.controls.addEventListener('change', this.render);
+    this.controls.addEventListener("change", this.render);
+
+    window.addEventListener( 'mousewheel', () => {
+      this.scroll(event);
+    } );
   }
 
   animate(): void {
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener("DOMContentLoaded", () => {
       this.render();
     });
+  }
+
+  //Check scroll event mouse wheel up or down
+  scroll(event): void {
+      if(event.deltaY > 0) {
+        this.camera.position.z -= 100;
+      }
+      else if (event.deltaY < 0) {
+        this.camera.position.z += 100;
+      }
   }
 
   render() {
