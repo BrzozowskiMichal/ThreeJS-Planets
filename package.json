@@ -25,6 +25,8 @@
     "core-js": "^2.5.7",
     "rxjs": "^6.3.0",
     "three": "^0.99.0",
+    "three-orbit-controls": "^82.1.0",
+    "three-orbitcontrols-ts": "^0.1.2",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
