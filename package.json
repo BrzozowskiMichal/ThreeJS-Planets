@@ -1,6 +1,9 @@
 {
   "name": "ng-three-template",
   "version": "0.0.0",
+  "engines": {
+    "node": "^10.12.0"
+  },
   "license": "MIT",
   "engines": {
     "node": "10.14.1",
