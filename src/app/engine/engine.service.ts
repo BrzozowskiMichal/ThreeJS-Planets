@@ -46,7 +46,7 @@ export class EngineService {
   });
   private clouds = new THREE.Mesh(this.cloudGeometry, this.cloudMaterial);
 
-  public earthVec = new THREE.Vector3(0, 0, 0);
+  public earthVector = new THREE.Vector3(0, 0, 0);
 
   public dx = .09;
   public dy = -.09;
@@ -166,6 +166,7 @@ export class EngineService {
     });
   }
 
+  //setting animation for camera and objects
   render() {
     requestAnimationFrame(() => {
       this.render();
@@ -185,11 +186,11 @@ export class EngineService {
     this.camera.position.y += this.dy;
     this.camera.position.z += this.dz;
 
-    if(this.camera.position.x < -100) {
+    if(this.camera.position.x < -500) {
       this.camera.position.set(0, 35, 70);
     }
 
-    this.camera.lookAt(this.earthVec);
+    this.camera.lookAt(this.earthVector);
 
     this.renderer.render(this.scene, this.camera);
   }
