@@ -58,12 +58,12 @@ export class EngineService {
     this.scene.add(this.camera);
 
     // soft white light
-    var light = new THREE.SpotLight( 0xffffff, 2 );
-    light.position.set( 100, 500, 2000 );
+    var light = new THREE.SpotLight(0xffffff, 2);
+    light.position.set(100, 500, 2000);
     this.scene.add(light);
 
     for (var i = 0; i < 10; i++) {
-      let planetGeometry = new THREE.SphereGeometry(40,40,40);
+      let planetGeometry = new THREE.SphereGeometry(40, 40, 40);
       let randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
       var planetTexture = new THREE.TextureLoader().load(this.planetTextures[randIndex]);
       var planetMaterial = new THREE.MeshPhongMaterial({
