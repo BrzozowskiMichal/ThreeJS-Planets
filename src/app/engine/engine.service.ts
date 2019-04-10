@@ -1,10 +1,10 @@
-import * as THREE from 'three';
-import { Injectable } from '@angular/core';
-import { OrbitControls } from 'three-orbitcontrols-ts';
-import { load } from '@angular/core/src/render3';
+import * as THREE from "three";
+import { Injectable } from "@angular/core";
+import { OrbitControls } from "three-orbitcontrols-ts";
+import { load } from "@angular/core/src/render3";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class EngineService {
   private canvas: HTMLCanvasElement;
@@ -14,22 +14,32 @@ export class EngineService {
 
   private planetEarth: THREE.Mesh;
 
-  public objects = [];
+  private planetGeometry = new THREE.SphereGeometry(40, 40, 40);
 
   public planetTextures = [
-    '/assets/textures/sun.jpg',
-    '/assets/textures/mars.jpg',
-    '/assets/textures/fake.jpg',
-    '/assets/textures/haumea.jpg',
-    '/assets/textures/ceres.jpg',
-    '/assets/textures/eris.jpg',
-    '/assets/textures/jupiter.jpg',
-    '/assets/textures/make.jpg',
-    '/assets/textures/moon.jpg',
-    '/assets/textures/neptun.jpg',
-    '/assets/textures/saturn.jpg',
-    '/assets/textures/uranus.jpg',
+    "/assets/textures/moon.jpg",
   ];
+
+  private randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
+  private planetTexture = new THREE.TextureLoader().load(
+    this.planetTextures[this.randIndex]
+  );
+  private planetMaterial = new THREE.MeshPhongMaterial({
+    map: this.planetTexture
+  });
+
+  private planetMoon = new THREE.Mesh(this.planetGeometry, this.planetMaterial);
+
+  private geometry = new THREE.CircleGeometry(300, 100);
+  private circle = new THREE.Line(
+    this.geometry,
+    new THREE.LineDashedMaterial({ color: "white" })
+  );
+
+  private orbit = new THREE.Group();
+  private orbitDir = new THREE.Group();
+
+  public objects = [];
 
   private controls: OrbitControls;
 
@@ -37,9 +47,18 @@ export class EngineService {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = <HTMLCanvasElement>document.getElementById(elementId);
 
+    this.geometry.vertices.shift();
+
+    this.circle.rotation.x = Math.PI * 0.5;
+
+    this.orbit.add(this.circle);
+    this.orbit.add(this.planetMoon);
+
+    this.orbitDir.add(this.orbit);
+
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      alpha: true,    // transparent background
+      alpha: true, // transparent background
       antialias: true // smooth edges
     });
     this.renderer.shadowMapEnabled = true; //Shadow
@@ -48,13 +67,18 @@ export class EngineService {
 
     // create the scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.TextureLoader().load('/assets/images/galaxy.jpg');
+    this.scene.background = new THREE.TextureLoader().load(
+      "/assets/images/galaxy.jpg"
+    );
 
     this.camera = new THREE.PerspectiveCamera(
-      75, window.innerWidth / window.innerHeight, 0.1, 1000
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
     );
     this.camera.position.z = 500;
-    this.camera.position.y = 3;
+    this.camera.position.y = 100;
     this.scene.add(this.camera);
 
     // soft white light
@@ -62,30 +86,20 @@ export class EngineService {
     light.position.set(100, 500, 2000);
     this.scene.add(light);
 
-    for (var i = 0; i < 10; i++) {
-      let planetGeometry = new THREE.SphereGeometry(40, 40, 40);
-      let randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
-      var planetTexture = new THREE.TextureLoader().load(this.planetTextures[randIndex]);
-      var planetMaterial = new THREE.MeshPhongMaterial({
-        map: planetTexture
-      })
-      var planet = new THREE.Mesh(planetGeometry, planetMaterial);
-      planet.position.x = Math.random() * 1000 - 500;
-      planet.position.y = Math.random() * 600 - 300;
-      planet.position.z = Math.random() * 800 - 400;
+    this.planetMoon.position.x = 300;
 
-      planet.castShadow = true;
-      planet.receiveShadow = true;
+    this.planetMoon.castShadow = true;
+    this.planetMoon.receiveShadow = true;
 
-      this.objects.push(planet);
-      this.scene.add(planet);
-    }
+    this.objects.push(this.planetMoon);
+    this.scene.add(this.planetMoon);
+
 
     let earthGeometry = new THREE.SphereGeometry(150, 150, 150);
-    let map = new THREE.TextureLoader().load('/assets/textures/earth.jpg');
+    let map = new THREE.TextureLoader().load("/assets/textures/earth.jpg");
     let earthMaterial = new THREE.MeshPhongMaterial({
       map: map
-    })
+    });
 
     this.planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
     this.planetEarth.receiveShadow = true;
@@ -96,9 +110,12 @@ export class EngineService {
 
     this.planetEarth.castShadow = true;
 
-    this.scene.add(this.planetEarth);
+    this.circle.add(this.planetMoon);
 
-    var spotLight = new THREE.SpotLight(0xAAAAAA);
+    this.scene.add(this.planetEarth);
+    this.scene.add(this.circle);
+
+    var spotLight = new THREE.SpotLight(0xaaaaaa);
     spotLight.position.set(100, 100, 100);
     spotLight.castShadow = true;
     spotLight.shadowBias = 100;
@@ -110,11 +127,24 @@ export class EngineService {
   addControls() {
     this.controls = new OrbitControls(this.camera);
     this.controls.rotateSpeed = 0.5;
-    this.controls.addEventListener('change', this.render);
+    this.controls.addEventListener("change", this.render);
+
+    window.addEventListener("mousewheel", () => {
+      this.scroll(event);
+    });
+  }
+
+  //Check scroll event mouse wheel up or down
+  scroll(event): void {
+    if (event.deltaY > 0) {
+      this.camera.position.z -= 100;
+    } else if (event.deltaY < 0) {
+      this.camera.position.z += 100;
+    }
   }
 
   animate(): void {
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener("DOMContentLoaded", () => {
       this.render();
     });
   }
@@ -125,6 +155,8 @@ export class EngineService {
     });
 
     this.planetEarth.rotation.y += 0.001;
+    this.planetMoon.rotation.z += 0.005;
+    this.circle.rotation.z += 0.005;
     this.renderer.render(this.scene, this.camera);
   }
 }
