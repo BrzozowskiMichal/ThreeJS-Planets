@@ -111,7 +111,21 @@ export class EngineService {
     this.controls = new OrbitControls(this.camera);
     this.controls.rotateSpeed = 0.5;
     this.controls.addEventListener('change', this.render);
+
+    window.addEventListener( 'mousewheel', () => {
+      this.scroll(event);
+    } );
   }
+
+  //Check scroll event mouse wheel up or down
+  scroll(event): void {
+    if(event.deltaY > 0) {
+      this.camera.position.z -= 100;
+    }
+    else if (event.deltaY < 0) {
+      this.camera.position.z += 100;
+    }
+}
 
   animate(): void {
     window.addEventListener('DOMContentLoaded', () => {
