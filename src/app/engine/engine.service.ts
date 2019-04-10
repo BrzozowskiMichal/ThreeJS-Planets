@@ -46,6 +46,13 @@ export class EngineService {
   });
   private clouds = new THREE.Mesh(this.cloudGeometry, this.cloudMaterial);
 
+  public earthVec = new THREE.Vector3(0, 0, 0);
+
+  public dx = .09;
+  public dy = -.09;
+  public dz = -.06;
+
+
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = <HTMLCanvasElement>document.getElementById(elementId);
@@ -173,6 +180,16 @@ export class EngineService {
     this.clouds.rotation.x += 0.001;
     this.clouds.rotation.y += 0.002;
     this.clouds.rotation.z += 0.002;
+
+    this.camera.position.x += this.dx;
+    this.camera.position.y += this.dy;
+    this.camera.position.z += this.dz;
+
+    if(this.camera.position.x < -100) {
+      this.camera.position.set(0, 35, 70);
+    }
+
+    this.camera.lookAt(this.earthVec);
 
     this.renderer.render(this.scene, this.camera);
   }
