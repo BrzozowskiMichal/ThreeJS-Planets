@@ -11,15 +11,11 @@ export class EngineService {
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
-
   private planetEarth: THREE.Mesh;
-
   private planetGeometry = new THREE.SphereGeometry(40, 40, 40);
-
   public planetTextures = [
-    "/assets/textures/moon.jpg",
+    "/assets/textures/moon.jpg"
   ];
-
   private randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
   private planetTexture = new THREE.TextureLoader().load(
     this.planetTextures[this.randIndex]
@@ -27,10 +23,8 @@ export class EngineService {
   private planetMaterial = new THREE.MeshPhongMaterial({
     map: this.planetTexture
   });
-
   private planetMoon = new THREE.Mesh(this.planetGeometry, this.planetMaterial);
-
-  private geometry = new THREE.CircleGeometry(300, 100);
+  private geometry = new THREE.CircleGeometry(400, 400);
   private circle = new THREE.Line(
     this.geometry,
     new THREE.LineDashedMaterial({ color: "white" })
@@ -42,6 +36,15 @@ export class EngineService {
   public objects = [];
 
   private controls: OrbitControls;
+
+  private cloudGeometry = new THREE.SphereGeometry(205, 205, 205);
+  private cloudTexture = new THREE.TextureLoader().load("/assets/textures/clouds.jpg");
+  private cloudMaterial = new THREE.MeshPhongMaterial({
+    map: this.cloudTexture,
+    transparent: true,
+    opacity: 0.09
+  });
+  private clouds = new THREE.Mesh(this.cloudGeometry, this.cloudMaterial);
 
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
@@ -82,11 +85,14 @@ export class EngineService {
     this.scene.add(this.camera);
 
     // soft white light
-    var light = new THREE.SpotLight(0xffffff, 2);
-    light.position.set(100, 500, 2000);
+    var ambientLight = new THREE.AmbientLight(0xfdfcf0);
+    this.scene.add(ambientLight);
+
+    var light = new THREE.DirectionalLight(0xfdfcf0, 1);
+    light.position.set(120, 110, 120);
     this.scene.add(light);
 
-    this.planetMoon.position.x = 300;
+    this.planetMoon.position.x = 400;
 
     this.planetMoon.castShadow = true;
     this.planetMoon.receiveShadow = true;
@@ -95,10 +101,13 @@ export class EngineService {
     this.scene.add(this.planetMoon);
 
 
-    let earthGeometry = new THREE.SphereGeometry(150, 150, 150);
+    let earthGeometry = new THREE.SphereGeometry(200, 200, 200);
     let map = new THREE.TextureLoader().load("/assets/textures/earth.jpg");
     let earthMaterial = new THREE.MeshPhongMaterial({
-      map: map
+      map: map,
+      color: 0xaaaaaa,
+      specular: 0x333333,
+      shininess: 15
     });
 
     this.planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
@@ -113,6 +122,7 @@ export class EngineService {
     this.circle.add(this.planetMoon);
 
     this.scene.add(this.planetEarth);
+    this.scene.add(this.clouds);
     this.scene.add(this.circle);
 
     var spotLight = new THREE.SpotLight(0xaaaaaa);
@@ -155,8 +165,15 @@ export class EngineService {
     });
 
     this.planetEarth.rotation.y += 0.001;
+
     this.planetMoon.rotation.z += 0.005;
+
     this.circle.rotation.z += 0.005;
+
+    this.clouds.rotation.x += 0.001;
+    this.clouds.rotation.y += 0.002;
+    this.clouds.rotation.z += 0.002;
+
     this.renderer.render(this.scene, this.camera);
   }
 }
