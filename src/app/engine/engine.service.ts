@@ -37,12 +37,12 @@ export class EngineService {
 
   private controls: OrbitControls;
 
-  private cloudGeometry = new THREE.SphereGeometry(205, 205, 205);
+  private cloudGeometry = new THREE.SphereGeometry(201, 201, 201);
   private cloudTexture = new THREE.TextureLoader().load("/assets/textures/clouds.jpg");
   private cloudMaterial = new THREE.MeshPhongMaterial({
     map: this.cloudTexture,
     transparent: true,
-    opacity: 0.09
+    opacity: 0.2
   });
   private clouds = new THREE.Mesh(this.cloudGeometry, this.cloudMaterial);
 
@@ -50,7 +50,7 @@ export class EngineService {
 
   public dx = .09;
   public dy = -.09;
-  public dz = -.06;
+  public dz = -.05;
 
 
   createScene(elementId: string): void {
@@ -82,7 +82,7 @@ export class EngineService {
     );
 
     this.camera = new THREE.PerspectiveCamera(
-      75,
+      80,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
@@ -112,9 +112,9 @@ export class EngineService {
     let map = new THREE.TextureLoader().load("/assets/textures/earth.jpg");
     let earthMaterial = new THREE.MeshPhongMaterial({
       map: map,
-      color: 0xaaaaaa,
+      color: 0xffffff,
       specular: 0x333333,
-      shininess: 15
+      shininess: 25
     });
 
     this.planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
@@ -186,8 +186,8 @@ export class EngineService {
     this.camera.position.y += this.dy;
     this.camera.position.z += this.dz;
 
-    if(this.camera.position.x < -500) {
-      this.camera.position.set(0, 35, 70);
+    if(this.camera.position.z < -600) {
+      this.camera.position.set(600, 200, 70);
     }
 
     this.camera.lookAt(this.earthVector);
