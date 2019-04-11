@@ -1,45 +1,74 @@
-import * as THREE from 'three';
-import { Injectable } from '@angular/core';
-import { OrbitControls } from 'three-orbitcontrols-ts';
-import { load } from '@angular/core/src/render3';
+import * as THREE from "three";
+import { Injectable } from "@angular/core";
+import { OrbitControls } from "three-orbitcontrols-ts";
+import { load } from "@angular/core/src/render3";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class EngineService {
   private canvas: HTMLCanvasElement;
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
-
   private planetEarth: THREE.Mesh;
+  private planetGeometry = new THREE.SphereGeometry(40, 40, 40);
+  public planetTextures = [
+    "/assets/textures/moon.jpg"
+  ];
+  private randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
+  private planetTexture = new THREE.TextureLoader().load(
+    this.planetTextures[this.randIndex]
+  );
+  private planetMaterial = new THREE.MeshPhongMaterial({
+    map: this.planetTexture
+  });
+  private planetMoon = new THREE.Mesh(this.planetGeometry, this.planetMaterial);
+  private geometry = new THREE.CircleGeometry(400, 400);
+  private circle = new THREE.Line(
+    this.geometry,
+    new THREE.LineDashedMaterial({ color: "white" })
+  );
+
+  private orbit = new THREE.Group();
+  private orbitDir = new THREE.Group();
 
   public objects = [];
 
-  public planetTextures = [
-    '/assets/textures/sun.jpg',
-    '/assets/textures/mars.jpg',
-    '/assets/textures/fake.jpg',
-    '/assets/textures/haumea.jpg',
-    '/assets/textures/ceres.jpg',
-    '/assets/textures/eris.jpg',
-    '/assets/textures/jupiter.jpg',
-    '/assets/textures/make.jpg',
-    '/assets/textures/moon.jpg',
-    '/assets/textures/neptun.jpg',
-    '/assets/textures/saturn.jpg',
-    '/assets/textures/uranus.jpg',
-  ];
-
   private controls: OrbitControls;
+
+  private cloudGeometry = new THREE.SphereGeometry(201, 201, 201);
+  private cloudTexture = new THREE.TextureLoader().load("/assets/textures/clouds.jpg");
+  private cloudMaterial = new THREE.MeshPhongMaterial({
+    map: this.cloudTexture,
+    transparent: true,
+    opacity: 0.2
+  });
+  private clouds = new THREE.Mesh(this.cloudGeometry, this.cloudMaterial);
+
+  public earthVector = new THREE.Vector3(0, 0, 0);
+
+  public dx = .09;
+  public dy = -.09;
+  public dz = -.05;
+
 
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = <HTMLCanvasElement>document.getElementById(elementId);
 
+    this.geometry.vertices.shift();
+
+    this.circle.rotation.x = Math.PI * 0.5;
+
+    this.orbit.add(this.circle);
+    this.orbit.add(this.planetMoon);
+
+    this.orbitDir.add(this.orbit);
+
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      alpha: true,    // transparent background
+      alpha: true, // transparent background
       antialias: true // smooth edges
     });
     this.renderer.shadowMapEnabled = true; //Shadow
@@ -48,44 +77,45 @@ export class EngineService {
 
     // create the scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.TextureLoader().load('/assets/images/galaxy.jpg');
+    this.scene.background = new THREE.TextureLoader().load(
+      "/assets/images/galaxy.jpg"
+    );
 
     this.camera = new THREE.PerspectiveCamera(
-      75, window.innerWidth / window.innerHeight, 0.1, 1000
+      80,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
     );
     this.camera.position.z = 500;
-    this.camera.position.y = 3;
+    this.camera.position.y = 100;
     this.scene.add(this.camera);
 
     // soft white light
-    var light = new THREE.SpotLight(0xffffff, 2);
-    light.position.set(100, 500, 2000);
+    var ambientLight = new THREE.AmbientLight(0xfdfcf0);
+    this.scene.add(ambientLight);
+
+    var light = new THREE.DirectionalLight(0xfdfcf0, 1);
+    light.position.set(120, 110, 120);
     this.scene.add(light);
 
-    for (var i = 0; i < 10; i++) {
-      let planetGeometry = new THREE.SphereGeometry(40, 40, 40);
-      let randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
-      var planetTexture = new THREE.TextureLoader().load(this.planetTextures[randIndex]);
-      var planetMaterial = new THREE.MeshPhongMaterial({
-        map: planetTexture
-      })
-      var planet = new THREE.Mesh(planetGeometry, planetMaterial);
-      planet.position.x = Math.random() * 1000 - 500;
-      planet.position.y = Math.random() * 600 - 300;
-      planet.position.z = Math.random() * 800 - 400;
+    this.planetMoon.position.x = 400;
 
-      planet.castShadow = true;
-      planet.receiveShadow = true;
+    this.planetMoon.castShadow = true;
+    this.planetMoon.receiveShadow = true;
 
-      this.objects.push(planet);
-      this.scene.add(planet);
-    }
+    this.objects.push(this.planetMoon);
+    this.scene.add(this.planetMoon);
 
-    let earthGeometry = new THREE.SphereGeometry(150, 150, 150);
-    let map = new THREE.TextureLoader().load('/assets/textures/earth.jpg');
+
+    let earthGeometry = new THREE.SphereGeometry(200, 200, 200);
+    let map = new THREE.TextureLoader().load("/assets/textures/earth.jpg");
     let earthMaterial = new THREE.MeshPhongMaterial({
-      map: map
-    })
+      map: map,
+      color: 0xffffff,
+      specular: 0x333333,
+      shininess: 25
+    });
 
     this.planetEarth = new THREE.Mesh(earthGeometry, earthMaterial);
     this.planetEarth.receiveShadow = true;
@@ -96,9 +126,13 @@ export class EngineService {
 
     this.planetEarth.castShadow = true;
 
-    this.scene.add(this.planetEarth);
+    this.circle.add(this.planetMoon);
 
-    var spotLight = new THREE.SpotLight(0xAAAAAA);
+    this.scene.add(this.planetEarth);
+    this.scene.add(this.clouds);
+    this.scene.add(this.circle);
+
+    var spotLight = new THREE.SpotLight(0xaaaaaa);
     spotLight.position.set(100, 100, 100);
     spotLight.castShadow = true;
     spotLight.shadowBias = 100;
@@ -110,21 +144,54 @@ export class EngineService {
   addControls() {
     this.controls = new OrbitControls(this.camera);
     this.controls.rotateSpeed = 0.5;
-    this.controls.addEventListener('change', this.render);
+    this.controls.addEventListener("change", this.render);
+
+    window.addEventListener("mousewheel", () => {
+      this.scroll(event);
+    });
+  }
+
+  //Check scroll event mouse wheel up or down
+  scroll(event): void {
+    if (event.deltaY > 0) {
+      this.camera.position.z -= 100;
+    } else if (event.deltaY < 0) {
+      this.camera.position.z += 100;
+    }
   }
 
   animate(): void {
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener("DOMContentLoaded", () => {
       this.render();
     });
   }
 
+  //setting animation for camera and objects
   render() {
     requestAnimationFrame(() => {
       this.render();
     });
 
     this.planetEarth.rotation.y += 0.001;
+
+    this.planetMoon.rotation.z += 0.005;
+
+    this.circle.rotation.z += 0.005;
+
+    this.clouds.rotation.x += 0.001;
+    this.clouds.rotation.y += 0.002;
+    this.clouds.rotation.z += 0.002;
+
+    this.camera.position.x += this.dx;
+    this.camera.position.y += this.dy;
+    this.camera.position.z += this.dz;
+
+    if(this.camera.position.z < -600) {
+      this.camera.position.set(600, 200, 70);
+    }
+
+    this.camera.lookAt(this.earthVector);
+
     this.renderer.render(this.scene, this.camera);
   }
 }
