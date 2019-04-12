@@ -48,9 +48,9 @@ export class EngineService {
 
   public earthVector = new THREE.Vector3(2, 1, 2);
 
-  public dx = .5;
-  public dy = -.5;
-  public dz = -.5;
+  public dx = .2;
+  public dy = -.2;
+  public dz = -.2;
 
   private particles = new THREE.Geometry();
   private particleCount = 3000;
