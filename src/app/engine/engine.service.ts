@@ -46,11 +46,11 @@ export class EngineService {
   });
   private clouds = new THREE.Mesh(this.cloudGeometry, this.cloudMaterial);
 
-  public earthVector = new THREE.Vector3(0, 0, 0);
+  public earthVector = new THREE.Vector3(2, 1, 2);
 
-  public dx = .09;
-  public dy = -.09;
-  public dz = -.05;
+  public dx = .5;
+  public dy = -.5;
+  public dz = -.5;
 
   private particles = new THREE.Geometry();
   private particleCount = 3000;
@@ -103,8 +103,8 @@ export class EngineService {
       0.1,
       1000
     );
-    this.camera.position.z = 500;
-    this.camera.position.y = 100;
+    this.camera.position.z = 700;
+    this.camera.position.y = 200;
     this.scene.add(this.camera);
 
     // soft white light
@@ -207,16 +207,16 @@ export class EngineService {
 
     this.circle.rotation.z += 0.005;
 
-    this.clouds.rotation.x += 0.001;
     this.clouds.rotation.y += 0.002;
     this.clouds.rotation.z += 0.002;
 
-    this.camera.position.x += this.dx;
+    // this.camera.position.x += this.dx;
     this.camera.position.y += this.dy;
     this.camera.position.z += this.dz;
 
-    if(this.camera.position.z < -600) {
-      this.camera.position.set(600, 200, 70);
+    if(this.camera.position.z < 550) {
+      this.camera.position.y -= this.dy;
+      this.camera.position.z -= this.dz;
     }
 
     this.camera.lookAt(this.earthVector);
