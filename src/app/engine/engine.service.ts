@@ -52,6 +52,22 @@ export class EngineService {
   public dy = -.09;
   public dz = -.05;
 
+  private particles = new THREE.Geometry();
+  private particleCount = 3000;
+  private particleMaterial = new THREE.ParticleBasicMaterial({
+    color: 0xFFFFFF,
+    size: Math.random() * 10,
+    map: THREE.ImageUtils.loadTexture(
+      "/assets/textures/particle.png"
+    ),
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+  });
+
+  public particleSystem = new THREE.ParticleSystem(
+    this.particles,
+    this.particleMaterial
+  );
 
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
@@ -139,6 +155,19 @@ export class EngineService {
     spotLight.shadowMapWidth = 2048; // Shadow Quality
     spotLight.shadowMapHeight = 2048; // Shadow Quality
     this.scene.add(spotLight);
+
+    for(let p = 0; p < this.particleCount; p++ ) {
+      let pX = Math.random() * 1500 - 500;
+      let pY = Math.random() * 1500 - 500;
+      let pZ = Math.random() * 1500 - 500;
+
+      let particle = new (<any>THREE).Vector3(pX, pY, pZ);
+
+      this.particles.vertices.push(particle);
+
+      this.scene.add(this.particleSystem);
+
+    }
   }
 
   addControls() {
