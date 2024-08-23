@@ -1,7 +1,5 @@
 import * as THREE from "three";
 import { Injectable } from "@angular/core";
-import { OrbitControls } from "three-orbitcontrols-ts";
-import { load } from "@angular/core/src/render3";
 
 @Injectable({
   providedIn: "root"
@@ -16,7 +14,7 @@ export class EngineService {
   public planetTextures = [
     "/assets/textures/moon.jpg"
   ];
-  private randIndex = THREE.Math.randInt(0, this.planetTextures.length - 1);
+  private randIndex = Math.random() * this.planetTextures.length - 1;
   private planetTexture = new THREE.TextureLoader().load(
     this.planetTextures[this.randIndex]
   );
@@ -35,7 +33,7 @@ export class EngineService {
 
   public objects = [];
 
-  private controls: OrbitControls;
+  // private controls: OrbitControls;
 
   private cloudGeometry = new THREE.SphereGeometry(201, 201, 201);
   private cloudTexture = new THREE.TextureLoader().load("/assets/textures/clouds.jpg");
@@ -52,28 +50,28 @@ export class EngineService {
   public dy = -.2;
   public dz = -.2;
 
-  private particles = new THREE.Geometry();
+  private particles = new THREE.BoxGeometry();
   private particleCount = 3000;
-  private particleMaterial = new THREE.ParticleBasicMaterial({
-    color: 0xFFFFFF,
-    size: Math.random() * 10,
-    map: THREE.ImageUtils.loadTexture(
-      "/assets/textures/particle.png"
-    ),
-    blending: THREE.AdditiveBlending,
-    transparent: true,
-  });
+  // private particleMaterial = new THREE.ParticleBasicMaterial({
+  //   color: 0xFFFFFF,
+  //   size: Math.random() * 10,
+  //   map: THREE.ImageUtils.loadTexture(
+  //     "/assets/textures/particle.png"
+  //   ),
+  //   blending: THREE.AdditiveBlending,
+  //   transparent: true,
+  // });
 
-  public particleSystem = new THREE.ParticleSystem(
-    this.particles,
-    this.particleMaterial
-  );
+  // public particleSystem = new THREE.ParticleSystem(
+  //   this.particles,
+  //   this.particleMaterial
+  // );
 
   createScene(elementId: string): void {
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = <HTMLCanvasElement>document.getElementById(elementId);
 
-    this.geometry.vertices.shift();
+    // this.geometry.vertices.shift();
 
     this.circle.rotation.x = Math.PI * 0.5;
 
@@ -151,9 +149,9 @@ export class EngineService {
     var spotLight = new THREE.SpotLight(0xaaaaaa);
     spotLight.position.set(100, 100, 100);
     spotLight.castShadow = true;
-    spotLight.shadowBias = 100;
-    spotLight.shadowMapWidth = 2048; // Shadow Quality
-    spotLight.shadowMapHeight = 2048; // Shadow Quality
+    // spotLight.shadowBias = 100;
+    // spotLight.shadowMapWidth = 2048; // Shadow Quality
+    // spotLight.shadowMapHeight = 2048; // Shadow Quality
     this.scene.add(spotLight);
 
     for(let p = 0; p < this.particleCount; p++ ) {
@@ -163,17 +161,17 @@ export class EngineService {
 
       let particle = new (<any>THREE).Vector3(pX, pY, pZ);
 
-      this.particles.vertices.push(particle);
+      // this.particles.vertices.push(particle);
 
-      this.scene.add(this.particleSystem);
+      // this.scene.add(this.particleSystem);
 
     }
   }
 
   addControls() {
-    this.controls = new OrbitControls(this.camera);
-    this.controls.rotateSpeed = 0.5;
-    this.controls.addEventListener("change", this.render);
+    // this.controls = new OrbitControls(this.camera);
+    // this.controls.rotateSpeed = 0.5;
+    // this.controls.addEventListener("change", this.render);
 
     window.addEventListener("mousewheel", () => {
       this.scroll(event);
